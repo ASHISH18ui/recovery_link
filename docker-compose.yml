@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: recoverlink-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./recoverlink.db
+      - SECRET_KEY=recoverlink-super-secret-jwt-key-change-in-production-2026
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - PATIENT_PORTAL_URL=http://localhost:3000/recovery
+    volumes:
+      - backend-data:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: recoverlink-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
+
+volumes:
+  backend-data:
+
