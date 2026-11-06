@@ -16,13 +16,19 @@ from app.models.models import (
 from app.core.security import get_password_hash
 from app.core.config import settings
 
-def seed_database():
-    print("Initializing schema...")
-    Base.metadata.drop_all(bind=engine)
+def seed_database(drop_existing: bool = True):
+    if drop_existing:
+        print("Initializing schema (dropping existing tables)...")
+        Base.metadata.drop_all(bind=engine)
+    print("Ensuring schema exists...")
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
+        if not drop_existing and db.query(Hospital).first():
+            print("Database already contains data. Skipping auto-seed.")
+            return
+
         print("Creating demo hospital...")
         hospital = Hospital(
             name="St. Jude Orthopedic & Surgical Centre",
