@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Calendar,
   CheckCircle2,
@@ -13,11 +13,32 @@ import {
   ChevronUp,
   Check,
   X,
-  Target
+  Target,
+  RefreshCw,
+  Clock,
+  FileQuestion
 } from "lucide-react";
 import { patientApi, RecoveryPlanDay } from "@/lib/patient-api";
 import { usePatient } from "../PatientContext";
 import { t } from "@/lib/i18n";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+// Helper to safely ensure arrays even if backend sends JSON string or undefined
+function safeArray(val: any): string[] {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map(String);
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed.map(String);
+      return [String(parsed)];
+    } catch {
+      return [val];
+    }
+  }
+  return [];
+}
 
 export default function PatientRecoveryPlanPage() {
   const { lang } = usePatient();
@@ -26,33 +47,118 @@ export default function PatientRecoveryPlanPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
 
-  useEffect(() => {
+  const fetchPlan = useCallback(() => {
+    setLoading(true);
+    setError(null);
     patientApi
       .getRecoveryPlan()
       .then((res) => {
-        setDays(res.days || []);
-        // default expand the first uncompleted day
-        const active = res.days?.find((d: RecoveryPlanDay) => !d.is_completed);
-        if (active) setExpandedDay(active.day_number);
-        else if (res.days?.length > 0) setExpandedDay(res.days[0].day_number);
+        const rawDays: RecoveryPlanDay[] = Array.isArray(res?.days) ? res.days : [];
+        setDays(rawDays);
+        if (rawDays.length > 0) {
+          const active = rawDays.find((d) => !d?.is_completed);
+          setExpandedDay(active?.day_number ?? rawDays[0]?.day_number ?? null);
+        } else {
+          setExpandedDay(null);
+        }
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      .catch((err: any) => {
+        setError(err?.message || "Unable to load recovery plan. Please try again.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
+  useEffect(() => {
+    fetchPlan();
+  }, [fetchPlan]);
+
+  // 1. Loading Skeleton State
   if (loading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl" />
-        <div className="space-y-3">
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64 rounded-xl" />
+          <Skeleton className="h-4 w-96 rounded-lg" />
+        </div>
+        <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
+            <div key={i} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-10 h-10 rounded-2xl" />
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-5 w-40 rounded-lg" />
+                    <Skeleton className="h-3 w-64 rounded-md" />
+                  </div>
+                </div>
+                <Skeleton className="w-6 h-6 rounded-md" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
     );
   }
 
+  // 2. Error State with Retry Button
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4 text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+          <AlertTriangle className="w-7 h-7" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          Could Not Load Recovery Plan
+        </h2>
+        <p className="text-xs text-slate-500 max-w-md mx-auto">
+          {error}
+        </p>
+        <div className="pt-2">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={fetchPlan}
+            iconLeft={<RefreshCw className="w-4 h-4" />}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Friendly Empty State
+  if (!days || days.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-300 flex items-center justify-center mx-auto shadow-xs">
+          <Clock className="w-8 h-8" />
+        </div>
+        <div className="space-y-1.5">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+            Your care team is preparing your recovery plan
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            Your attending surgeon and nurse are finalizing your personalized day-by-day protocol. Instructions, milestones, and diet guidance will appear here soon.
+          </p>
+        </div>
+        <div className="pt-3">
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={fetchPlan}
+            iconLeft={<RefreshCw className="w-4 h-4" />}
+          >
+            Check Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Active Recovery Plan Timeline
   return (
     <div className="space-y-6">
       <div>
@@ -67,6 +173,9 @@ export default function PatientRecoveryPlanPage() {
       <div className="space-y-4">
         {days.map((d) => {
           const isExpanded = expandedDay === d.day_number;
+          const milestones = safeArray(d?.milestones);
+          const warningSigns = safeArray(d?.warning_signs);
+
           return (
             <div
               key={d.day_number}
@@ -79,7 +188,7 @@ export default function PatientRecoveryPlanPage() {
               {/* Day Header Bar */}
               <div
                 onClick={() => setExpandedDay(isExpanded ? null : d.day_number)}
-                className="p-5 flex items-center justify-between cursor-pointer"
+                className="p-5 flex items-center justify-between cursor-pointer select-none"
               >
                 <div className="flex items-center gap-3.5">
                   <div
@@ -93,7 +202,7 @@ export default function PatientRecoveryPlanPage() {
                   </div>
                   <div>
                     <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>{d.title}</span>
+                      <span>{d?.title || `Day ${d.day_number}`}</span>
                       {d.is_completed && (
                         <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1">
                           <Check className="w-3 h-3" /> Completed
@@ -101,7 +210,7 @@ export default function PatientRecoveryPlanPage() {
                       )}
                     </h3>
                     <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
-                      {d.instructions || "Daily monitoring instructions"}
+                      {d?.instructions || "Daily monitoring instructions"}
                     </p>
                   </div>
                 </div>
@@ -120,7 +229,7 @@ export default function PatientRecoveryPlanPage() {
                       Clinical Instructions:
                     </span>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                      {d.instructions}
+                      {d?.instructions || "Follow your discharge instructions and take prescribed medications."}
                     </p>
                   </div>
 
@@ -131,9 +240,9 @@ export default function PatientRecoveryPlanPage() {
                       <span>Target Milestone for Day {d.day_number}</span>
                     </div>
                     <p className="text-slate-600 dark:text-slate-400">
-                      {d.milestones && d.milestones.length > 0
-                        ? d.milestones.join(", ")
-                        : `Achieve assisted ambulation of at least 50 steps; maintain pain level under 4/10.`}
+                      {milestones.length > 0
+                        ? milestones.join(", ")
+                        : `Achieve assisted ambulation of at least ${d.day_number * 15} steps; keep pain score under 4/10.`}
                     </p>
                   </div>
 
@@ -173,7 +282,7 @@ export default function PatientRecoveryPlanPage() {
                         <span>Diet &amp; Nutrition</span>
                       </div>
                       <p className="text-slate-600 dark:text-slate-400">
-                        {d.diet_notes || "High-protein recovery diet with plenty of water and fiber."}
+                        {d?.diet_notes || "High-protein recovery diet with plenty of water and fiber."}
                       </p>
                     </div>
 
@@ -184,7 +293,7 @@ export default function PatientRecoveryPlanPage() {
                         <span>Mobility &amp; Exercises</span>
                       </div>
                       <p className="text-slate-600 dark:text-slate-400">
-                        {d.exercise_notes || "Gentle ambulation and prescribed physical therapy stretches 3 times daily."}
+                        {d?.exercise_notes || "Gentle ambulation and prescribed physical therapy stretches 3 times daily."}
                       </p>
                     </div>
                   </div>
@@ -196,15 +305,15 @@ export default function PatientRecoveryPlanPage() {
                       <span>Warning Signs to Watch For</span>
                     </div>
                     <ul className="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
-                      {d.warning_signs && d.warning_signs.length > 0
-                        ? d.warning_signs.map((sign, idx) => <li key={idx}>{sign}</li>)
-                        : (
-                          <>
-                            <li>Temperature &gt; 38.0°C (100.4°F) or shaking chills</li>
-                            <li>Spreading redness or cloudy drainage from incision site</li>
-                            <li>Sudden onset shortness of breath or persistent calf tenderness</li>
-                          </>
-                        )}
+                      {warningSigns.length > 0 ? (
+                        warningSigns.map((sign, idx) => <li key={idx}>{sign}</li>)
+                      ) : (
+                        <>
+                          <li>Temperature &gt; 38.0°C (100.4°F) or shaking chills</li>
+                          <li>Spreading redness or cloudy drainage from incision site</li>
+                          <li>Sudden onset shortness of breath or persistent calf tenderness</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                 </div>

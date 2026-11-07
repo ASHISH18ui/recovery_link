@@ -116,7 +116,7 @@ def _get_active_care_plan(patient_id: str, db: Session) -> Optional[CarePlan]:
     )
 
 def _days_since_discharge(care_plan: CarePlan) -> int:
-    if not care_plan:
+    if not care_plan or not care_plan.start_date:
         return 0
     start = care_plan.start_date
     if start.tzinfo is None:
@@ -822,21 +822,46 @@ def get_recovery_plan(
     current_patient: PatientAccount = Depends(get_current_patient),
     db: Session = Depends(get_db),
 ):
+    def _parse_list(val):
+        if not val:
+            return []
+        if isinstance(val, list):
+            return val
+        if isinstance(val, str):
+            try:
+                parsed = json.loads(val)
+                return parsed if isinstance(parsed, list) else [str(parsed)]
+            except Exception:
+                return [val]
+        return []
+
     care_plan = _get_active_care_plan(current_patient.patient_id, db)
     if not care_plan:
         return {"care_plan": None, "days": [], "footer": PORTAL_FOOTER}
 
-    days = (
-        db.query(RecoveryPlanDay)
-        .filter(RecoveryPlanDay.care_plan_id == care_plan.id)
-        .order_by(RecoveryPlanDay.day_number)
-        .all()
-    )
+    days_since = _days_since_discharge(care_plan)
+
+    try:
+        days = (
+            db.query(RecoveryPlanDay)
+            .filter(RecoveryPlanDay.care_plan_id == care_plan.id)
+            .order_by(RecoveryPlanDay.day_number)
+            .all()
+        )
+    except Exception:
+        days = []
 
     # Fallback: generate generic plan days if none seeded
     if not days:
-        days_since = _days_since_discharge(care_plan)
-        plan_dur = (care_plan.end_date - care_plan.start_date).days if care_plan.end_date else 14
+        plan_dur = 14
+        if care_plan.end_date and care_plan.start_date:
+            try:
+                diff = (care_plan.end_date - care_plan.start_date).days
+                if diff > 0:
+                    plan_dur = diff
+            except Exception:
+                plan_dur = 14
+
         generated = []
         for d in range(1, plan_dur + 1):
             generated.append({
@@ -845,13 +870,16 @@ def get_recovery_plan(
                 "instructions": "Follow your discharge instructions. Take all medications as prescribed. Rest and avoid strenuous activity.",
                 "diet_notes": "Light nutritious meals. Stay well hydrated.",
                 "exercise_notes": "Gentle walking as tolerated. No heavy lifting.",
-                "warning_signs": json.dumps(["High fever (>38.5°C)", "Severe pain", "Wound opening or discharge"]),
-                "milestones": json.dumps([]),
+                "warning_signs": ["High fever (>38.5°C)", "Severe pain", "Wound opening or discharge"],
+                "milestones": [f"Achieve assisted ambulation of at least {min(200, d * 15)} steps; keep pain score under 4/10."],
                 "is_completed": d <= days_since,
             })
-        return {"care_plan": {"id": care_plan.id, "status": care_plan.status}, "days": generated, "footer": PORTAL_FOOTER}
+        return {
+            "care_plan": {"id": care_plan.id, "status": care_plan.status},
+            "days": generated,
+            "footer": PORTAL_FOOTER
+        }
 
-    days_since = _days_since_discharge(care_plan)
     result = []
     for d in days:
         result.append({
@@ -860,12 +888,16 @@ def get_recovery_plan(
             "instructions": d.instructions,
             "diet_notes": d.diet_notes,
             "exercise_notes": d.exercise_notes,
-            "warning_signs": json.loads(d.warning_signs) if d.warning_signs else [],
-            "milestones": json.loads(d.milestones) if d.milestones else [],
+            "warning_signs": _parse_list(d.warning_signs),
+            "milestones": _parse_list(d.milestones),
             "is_completed": d.day_number <= days_since or d.is_completed,
         })
 
-    return {"care_plan": {"id": care_plan.id, "status": care_plan.status}, "days": result, "footer": PORTAL_FOOTER}
+    return {
+        "care_plan": {"id": care_plan.id, "status": care_plan.status},
+        "days": result,
+        "footer": PORTAL_FOOTER
+    }
 
 
 # ─── Progress / Vitals ────────────────────────────────────────────────────────
