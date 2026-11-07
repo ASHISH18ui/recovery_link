@@ -6,7 +6,7 @@ BASE_URL = "http://127.0.0.1:8000/api/v1"
 def run_e2e_test():
     client = httpx.Client(timeout=10.0)
     print("==================================================")
-    print("RECOVERLINK: END-TO-END FLOW VERIFICATION")
+    print("AFTERCARE: END-TO-END FLOW VERIFICATION")
     print("==================================================")
 
     # 1. Health check
@@ -18,7 +18,7 @@ def run_e2e_test():
     # 2. Staff Login
     print("\n2. Logging in as Dr. Arthur Chen (Lead Orthopedic Surgeon)...")
     res = client.post(f"{BASE_URL}/auth/login", json={
-        "email": "dr.chen@recoverlink.com",
+        "email": "dr.chen@aftercare.com",
         "password": "doctor123"
     })
     assert res.status_code == 200, f"Login failed: {res.text}"

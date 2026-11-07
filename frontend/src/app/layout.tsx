@@ -3,8 +3,13 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export const metadata: Metadata = {
-  title: "RecoverLink | Clinical Post-Discharge Patient Recovery Monitoring",
+  title: "AfterCare | Patient Recovery Monitoring",
   description: "Secure, AI-assisted post-discharge patient recovery monitoring platform for hospitals.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

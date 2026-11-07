@@ -14,18 +14,18 @@ def test_health_check():
 def test_login_successful():
     response = client.post(
         "/api/v1/auth/login",
-        json={"email": "dr.chen@recoverlink.com", "password": "doctor123"}
+        json={"email": "dr.chen@aftercare.com", "password": "doctor123"}
     )
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
-    assert data["user"]["email"] == "dr.chen@recoverlink.com"
+    assert data["user"]["email"] == "dr.chen@aftercare.com"
     assert data["user"]["role"] == "doctor"
 
 def test_login_invalid_password():
     response = client.post(
         "/api/v1/auth/login",
-        json={"email": "dr.chen@recoverlink.com", "password": "wrongpassword"}
+        json={"email": "dr.chen@aftercare.com", "password": "wrongpassword"}
     )
     assert response.status_code == 401
 
@@ -33,7 +33,7 @@ def test_dashboard_stats():
     # Login first
     login_res = client.post(
         "/api/v1/auth/login",
-        json={"email": "dr.chen@recoverlink.com", "password": "doctor123"}
+        json={"email": "dr.chen@aftercare.com", "password": "doctor123"}
     )
     token = login_res.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}

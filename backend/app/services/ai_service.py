@@ -150,7 +150,7 @@ class AISummaryService:
             try:
                 from google import genai
                 self.gemini_client = genai.Client(api_key=settings.GEMINI_API_KEY)
-                logger.info("Gemini AI Client initialized successfully for RecoverLink.")
+                logger.info("Gemini AI Client initialized successfully for AfterCare.")
             except Exception as e:
                 logger.warning(f"Could not initialize Gemini Client: {e}. Falling back to Rule-based.")
 
@@ -166,7 +166,7 @@ class AISummaryService:
         if self.gemini_client:
             try:
                 prompt = (
-                    "You are the clinical summarization engine for 'RecoverLink', a hospital post-discharge monitoring platform.\n"
+                    "You are the clinical summarization engine for 'AfterCare', a hospital post-discharge monitoring platform.\n"
                     "CORE DIRECTIVE: You summarize patient responses and highlight clinical concerns. "
                     "You MUST NEVER diagnose diseases, suggest treatment, or give medical advice to patients.\n"
                     "Review the following daily patient check-in data and clinical rule results, and provide a clear, "

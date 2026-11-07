@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { authStorage, api, User } from "@/lib/api";
@@ -58,12 +59,18 @@ export function StaffNavbar() {
           {/* Logo & Hospital */}
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center text-white shadow-sm shadow-teal-500/20">
-                <Activity className="w-5 h-5 stroke-[2.5]" />
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="AfterCare Logo"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <span className="text-lg font-bold tracking-tight text-slate-900">
-                  Recover<span className="text-teal-600">Link</span>
+                  After<span className="text-purple-600">Care</span>
                 </span>
                 <span className="hidden sm:block text-[10px] text-slate-500 font-medium -mt-1 tracking-wide uppercase">
                   Clinical Recovery Platform

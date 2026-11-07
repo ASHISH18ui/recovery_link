@@ -48,7 +48,7 @@ class NotificationService:
     ) -> Notification:
         patient_link = f"{portal_url}/{patient.access_token}"
         msg = (
-            f"Hello {patient.full_name}, your post-discharge recovery monitoring from RecoverLink is active. "
+            f"Hello {patient.full_name}, your post-discharge recovery monitoring from AfterCare is active. "
             f"Please tap this secure link to complete your daily check-in: {patient_link}"
         )
         return NotificationService.send_notification(
@@ -95,7 +95,7 @@ class NotificationService:
         instructions: str
     ) -> Notification:
         msg = (
-            f"RecoverLink Reminder: Please remember to take {medication_name} ({dosage}) - {instructions}. "
+            f"AfterCare Reminder: Please remember to take {medication_name} ({dosage}) - {instructions}. "
             "Reply via your daily check-in portal once taken."
         )
         return NotificationService.send_notification(
@@ -118,7 +118,7 @@ class NotificationService:
     ) -> Notification:
         msg = (
             f"[STAFF ESCALATION - {risk_level.upper()}] Patient {patient.full_name} has an unacknowledged alert: "
-            f"'{alert_summary}'. Please review in RecoverLink dashboard."
+            f"'{alert_summary}'. Please review in AfterCare dashboard."
         )
         return NotificationService.send_notification(
             db=db,

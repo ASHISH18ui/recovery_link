@@ -326,7 +326,7 @@ export default function NotificationsLogPage() {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                    RecoverLink Outbound Gateway
+                    AfterCare Outbound Gateway
                   </div>
                   <div className="text-[10px] text-slate-500">
                     To: {previewItem.recipient_contact} • {previewItem.channel.toUpperCase()}

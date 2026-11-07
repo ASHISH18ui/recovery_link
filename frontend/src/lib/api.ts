@@ -1,4 +1,4 @@
-// RecoverLink API Client
+// AfterCare API Client
 
 const rawApiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 const API_BASE = rawApiUrl.endsWith("/api/v1") ? rawApiUrl : `${rawApiUrl}/api/v1`;
@@ -220,26 +220,30 @@ export interface ReportSummary {
 export const authStorage = {
   getToken: (): string | null => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("recoverlink_token");
+    return localStorage.getItem("aftercare_token") || localStorage.getItem("recoverlink_token");
   },
   setToken: (token: string) => {
     if (typeof window !== "undefined") {
+      localStorage.setItem("aftercare_token", token);
       localStorage.setItem("recoverlink_token", token);
     }
   },
   getUser: (): User | null => {
     if (typeof window === "undefined") return null;
-    const str = localStorage.getItem("recoverlink_user");
+    const str = localStorage.getItem("aftercare_user") || localStorage.getItem("recoverlink_user");
     return str ? JSON.parse(str) : null;
   },
   setUser: (user: User) => {
     if (typeof window !== "undefined") {
+      localStorage.setItem("aftercare_user", JSON.stringify(user));
       localStorage.setItem("recoverlink_user", JSON.stringify(user));
     }
   },
   clear: () => {
     if (typeof window !== "undefined") {
+      localStorage.removeItem("aftercare_token");
       localStorage.removeItem("recoverlink_token");
+      localStorage.removeItem("aftercare_user");
       localStorage.removeItem("recoverlink_user");
     }
   }

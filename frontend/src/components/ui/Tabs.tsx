@@ -62,7 +62,7 @@ export function Tabs({
                     className={clsx(
                       "px-1.5 py-0.5 rounded-full text-xs font-bold",
                       isActive
-                        ? "bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200"
+                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200"
                         : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                     )}
                   >
@@ -88,7 +88,7 @@ export function Tabs({
             className={clsx(
               "relative pb-3 text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap focus:outline-none",
               isActive
-                ? "text-teal-600 dark:text-teal-400 font-semibold"
+                ? "text-purple-600 dark:text-purple-400 font-semibold"
                 : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             )}
           >
@@ -99,7 +99,7 @@ export function Tabs({
                 className={clsx(
                   "px-2 py-0.5 rounded-full text-xs font-semibold",
                   isActive
-                    ? "bg-teal-50 text-teal-700 border border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800"
+                    ? "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
                     : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                 )}
               >
@@ -109,7 +109,7 @@ export function Tabs({
             {isActive && (
               <motion.div
                 layoutId="activeUnderlineTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-teal-500 to-blue-600 rounded-full"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#1E7BFF] via-[#8B5CF6] to-[#EC4899] rounded-full"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
               />
             )}

@@ -41,7 +41,7 @@ def seed_database(drop_existing: bool = True):
         print("Creating clinical staff users...")
         admin = User(
             hospital_id=hospital.id,
-            email="admin@recoverlink.com",
+            email="admin@aftercare.com",
             hashed_password=get_password_hash("admin123"),
             role="admin",
             full_name="Dr. Sandra Bell, MD (Admin)",
@@ -49,7 +49,7 @@ def seed_database(drop_existing: bool = True):
         )
         doctor = User(
             hospital_id=hospital.id,
-            email="dr.chen@recoverlink.com",
+            email="dr.chen@aftercare.com",
             hashed_password=get_password_hash("doctor123"),
             role="doctor",
             full_name="Dr. Arthur Chen, MD",
@@ -57,7 +57,7 @@ def seed_database(drop_existing: bool = True):
         )
         doctor2 = User(
             hospital_id=hospital.id,
-            email="dr.patel@recoverlink.com",
+            email="dr.patel@aftercare.com",
             hashed_password=get_password_hash("doctor123"),
             role="doctor",
             full_name="Dr. Meera Patel, MD",
@@ -65,7 +65,7 @@ def seed_database(drop_existing: bool = True):
         )
         nurse1 = User(
             hospital_id=hospital.id,
-            email="nurse.sarah@recoverlink.com",
+            email="nurse.sarah@aftercare.com",
             hashed_password=get_password_hash("nurse123"),
             role="nurse",
             full_name="Sarah Jenkins, BSN, RN",
@@ -73,7 +73,7 @@ def seed_database(drop_existing: bool = True):
         )
         nurse2 = User(
             hospital_id=hospital.id,
-            email="nurse.elena@recoverlink.com",
+            email="nurse.elena@aftercare.com",
             hashed_password=get_password_hash("nurse123"),
             role="nurse",
             full_name="Elena Rostova, RN",
@@ -305,7 +305,7 @@ def seed_database(drop_existing: bool = True):
                 notification_type="onboarding_link",
                 channel="whatsapp",
                 recipient_contact=pat.phone,
-                message=f"Welcome {pat.full_name} to RecoverLink! Your care team at {hospital.name} will check in daily. Start here: {settings.PATIENT_PORTAL_URL}/{pat.access_token}",
+                message=f"Welcome {pat.full_name} to AfterCare! Your care team at {hospital.name} will check in daily. Start here: {settings.PATIENT_PORTAL_URL}/{pat.access_token}",
                 status="simulated",
                 link_url=f"{settings.PATIENT_PORTAL_URL}/{pat.access_token}",
                 sent_at=now - timedelta(days=days_ago_discharged)

@@ -8,8 +8,10 @@ export function ThemeToggle() {
 
   useEffect(() => {
     const isDarkMode =
+      localStorage.getItem("aftercare_theme") === "dark" ||
       localStorage.getItem("recoverlink_theme") === "dark" ||
-      (!localStorage.getItem("recoverlink_theme") &&
+      (!localStorage.getItem("aftercare_theme") &&
+        !localStorage.getItem("recoverlink_theme") &&
         window.matchMedia("(prefers-color-scheme: dark)").matches);
     setIsDark(isDarkMode);
     if (isDarkMode) {
@@ -24,10 +26,10 @@ export function ThemeToggle() {
     setIsDark(nextDark);
     if (nextDark) {
       document.documentElement.classList.add("dark");
-      localStorage.setItem("recoverlink_theme", "dark");
+      localStorage.setItem("aftercare_theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("recoverlink_theme", "light");
+      localStorage.setItem("aftercare_theme", "light");
     }
   };
 

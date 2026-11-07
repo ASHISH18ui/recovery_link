@@ -1,4 +1,4 @@
-# RecoverLink: Post-Discharge Patient Recovery Monitoring Platform
+# AfterCare: Post-Discharge Patient Recovery Monitoring Platform
 
 > **Clinical Principle**: *THE AI SUMMARISES AND FLAGS; THE CLINICIAN DECIDES.*  
 > The AI must never diagnose, prescribe, or give medical advice to patients.
@@ -9,7 +9,7 @@
 ---
 
 ## 🏥 Product Overview
-**RecoverLink** is an intelligent, hospital-grade post-discharge patient recovery monitoring web platform. It bridges the critical 14-day gap between hospital discharge and first outpatient follow-up.
+**AfterCare** is an intelligent, hospital-grade post-discharge patient recovery monitoring web platform. It bridges the critical 14-day gap between hospital discharge and first outpatient follow-up.
 
 ### The 6-Step Clinical Recovery Journey
 1. **Patient Discharged**: Staff input surgical procedure, discharge instructions, medication schedule, and follow-up appointment date.
@@ -145,10 +145,10 @@ Open **http://localhost:3000** in your browser.
 
 | Role | Name | Email | Password |
 |---|---|---|---|
-| **Lead Surgeon (Doctor)** | Dr. Arthur Chen, MD | `dr.chen@recoverlink.com` | `doctor123` |
-| **Ward Nurse** | Sarah Jenkins, RN | `nurse.sarah@recoverlink.com` | `nurse123` |
-| **Care Coordinator (Nurse)** | Elena Rostova, RN | `nurse.elena@recoverlink.com` | `nurse123` |
-| **Hospital Administrator** | Sandra Bell | `admin@recoverlink.com` | `admin123` |
+| **Lead Surgeon (Doctor)** | Dr. Arthur Chen, MD | `dr.chen@aftercare.com` | `doctor123` |
+| **Ward Nurse** | Sarah Jenkins, RN | `nurse.sarah@aftercare.com` | `nurse123` |
+| **Care Coordinator (Nurse)** | Elena Rostova, RN | `nurse.elena@aftercare.com` | `nurse123` |
+| **Hospital Administrator** | Sandra Bell | `admin@aftercare.com` | `admin123` |
 
 > *Tip: The login page includes 1-click Quick Demo Account buttons for instant testing.*
 
@@ -157,7 +157,7 @@ Open **http://localhost:3000** in your browser.
 ## 🎯 Step-by-Step Demo Walkthrough
 
 ### 1. Review the Live Monitoring Dashboard
-1. Log in as **Dr. Arthur Chen** (`dr.chen@recoverlink.com` / `doctor123`).
+1. Log in as **Dr. Arthur Chen** (`dr.chen@aftercare.com` / `doctor123`).
 2. The Dashboard displays 5 primary clinical indicators:
    - **Total Monitored**: 8 Patients
    - **Checked-In Today**: 6 Patients

@@ -168,7 +168,7 @@ def send_appointment_reminder(
     patient = appt.patient
     formatted_date = appt.scheduled_at.strftime("%A, %B %d at %I:%M %p")
     msg = (
-        f"Hi {patient.full_name}, this is a reminder from RecoverLink for your upcoming {appt.appointment_type} "
+        f"Hi {patient.full_name}, this is a reminder from AfterCare for your upcoming {appt.appointment_type} "
         f"on {formatted_date}. Please contact the clinic if you need to reschedule."
     )
 

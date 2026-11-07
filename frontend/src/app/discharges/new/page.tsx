@@ -699,7 +699,7 @@ export default function NewDischargePage() {
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                    RecoverLink Care Navigator
+                    AfterCare Navigator
                   </div>
                   <div className="text-[10px] text-slate-500">Official Hospital Outreach • WhatsApp</div>
                 </div>

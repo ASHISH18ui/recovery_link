@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HeartPulse,
@@ -143,12 +144,30 @@ export function PatientPortalView({ token }: { token: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9F9] flex flex-col justify-between items-center py-6 px-4 font-sans text-slate-900">
-      {/* Top hospital regulatory banner */}
-      <div className="w-full max-w-md text-center mb-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-[11px] font-semibold text-teal-800">
-          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-          <span>{hospital?.name || "RecoverLink Care Network"}</span>
+    <div className="min-h-screen bg-[#F6F8FB] flex flex-col justify-between items-center py-6 px-4 font-sans text-slate-900">
+      {/* Top hospital regulatory banner & AfterCare brand */}
+      <div className="w-full max-w-md flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2.5">
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-xs">
+            <Image
+              src="/logo.png"
+              alt="AfterCare Logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+              priority
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-sm text-slate-900 leading-tight">
+              After<span className="text-[#8B5CF6]">Care</span>
+            </span>
+            <span className="text-[10px] text-slate-400 font-medium">Patient Recovery Portal</span>
+          </div>
+        </div>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 border border-purple-200/80 text-[11px] font-semibold text-purple-900">
+          <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+          <span className="truncate max-w-[160px]">{hospital?.name || "AfterCare Network"}</span>
         </div>
       </div>
 

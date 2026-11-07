@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  HeartPulse,
   Mail,
   Lock,
   ArrowRight,
@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   TrendingUp,
   Activity,
-  CheckCircle2,
   Sparkles
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -20,7 +19,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("dr.chen@recoverlink.com");
+  const [email, setEmail] = useState("dr.chen@aftercare.com");
   const [password, setPassword] = useState("doctor123");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,17 +55,24 @@ export default function LoginPage() {
         {/* Top Header */}
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-semibold tracking-wide uppercase">
-            <Sparkles className="w-3.5 h-3.5 text-teal-200" />
+            <Sparkles className="w-3.5 h-3.5 text-purple-200" />
             <span>AI-Assisted Clinical Monitoring</span>
           </div>
 
-          <div className="flex items-center gap-3 mt-6">
-            <div className="w-12 h-12 rounded-2xl bg-white text-teal-600 flex items-center justify-center shadow-lg font-bold">
-              <HeartPulse className="w-7 h-7" />
+          <div className="flex items-center gap-3.5 mt-6">
+            <div className="relative w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md p-1.5 flex items-center justify-center shadow-lg shrink-0 border border-white/30">
+              <Image
+                src="/logo.png"
+                alt="AfterCare Logo"
+                width={64}
+                height={64}
+                className="w-full h-full object-contain rounded-xl"
+                priority
+              />
             </div>
             <div>
-              <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight">RecoverLink</h1>
-              <p className="text-teal-100 text-xs font-medium">Enterprise Post-Discharge Surveillance</p>
+              <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight">AfterCare</h1>
+              <p className="text-purple-100 text-xs font-medium">Enterprise Post-Discharge Surveillance</p>
             </div>
           </div>
         </div>
@@ -77,7 +83,7 @@ export default function LoginPage() {
             <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
               Proactive recovery. Early complication triage.
             </h2>
-            <p className="mt-3 text-teal-50 text-sm lg:text-base leading-relaxed opacity-90">
+            <p className="mt-3 text-purple-50 text-sm lg:text-base leading-relaxed opacity-90">
               Automated daily patient check-ins without app downloads, intelligent clinical symptom flags, and instant clinician intervention.
             </p>
           </div>
@@ -90,12 +96,12 @@ export default function LoginPage() {
               transition={{ delay: 0.1, duration: 0.4 }}
               className="p-4 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 shadow-glass"
             >
-              <div className="flex items-center justify-between text-xs text-teal-100">
+              <div className="flex items-center justify-between text-xs text-purple-100">
                 <span>Check-in Adherence</span>
                 <TrendingUp className="w-4 h-4 text-emerald-300" />
               </div>
               <div className="text-2xl font-bold mt-1">94.8%</div>
-              <div className="text-[11px] text-teal-200 mt-0.5">Across 15 surgical cohorts</div>
+              <div className="text-[11px] text-purple-200 mt-0.5">Across 15 surgical cohorts</div>
             </motion.div>
 
             <motion.div
@@ -104,18 +110,18 @@ export default function LoginPage() {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="p-4 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 shadow-glass"
             >
-              <div className="flex items-center justify-between text-xs text-teal-100">
+              <div className="flex items-center justify-between text-xs text-purple-100">
                 <span>Clinical Triage Time</span>
-                <Activity className="w-4 h-4 text-teal-200" />
+                <Activity className="w-4 h-4 text-purple-200" />
               </div>
               <div className="text-2xl font-bold mt-1">&lt; 12 mins</div>
-              <div className="text-[11px] text-teal-200 mt-0.5">From patient check-in to nurse review</div>
+              <div className="text-[11px] text-purple-200 mt-0.5">From patient check-in to nurse review</div>
             </motion.div>
           </div>
 
           {/* Core Principle Callout */}
-          <div className="p-4 rounded-xl bg-slate-900/30 backdrop-blur-md border border-white/15 text-xs text-teal-50 flex items-start gap-2.5 max-w-md">
-            <ShieldCheck className="w-5 h-5 text-teal-300 shrink-0 mt-0.5" />
+          <div className="p-4 rounded-xl bg-slate-900/30 backdrop-blur-md border border-white/15 text-xs text-purple-50 flex items-start gap-2.5 max-w-md">
+            <ShieldCheck className="w-5 h-5 text-purple-300 shrink-0 mt-0.5" />
             <div>
               <span className="font-semibold text-white">Governing Principle:</span> The AI summarises and flags; the clinician decides. No unsupervised medical advice to patients.
             </div>
@@ -123,7 +129,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer Regulatory Badge */}
-        <div className="relative z-10 text-[11px] text-teal-100/80 flex items-center gap-2">
+        <div className="relative z-10 text-[11px] text-purple-100/80 flex items-center gap-2">
           <span>St. Jude Orthopedic & Surgical Centre Deployment</span>
           <span>•</span>
           <span>v1.0.0 Production</span>
@@ -150,10 +156,10 @@ export default function LoginPage() {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setDemoUser("dr.chen@recoverlink.com", "doctor123")}
+                onClick={() => setDemoUser("dr.chen@aftercare.com", "doctor123")}
                 className={`py-1.5 px-2 rounded-xl text-xs font-medium border text-center transition-all ${
-                  email === "dr.chen@recoverlink.com"
-                    ? "bg-teal-50 dark:bg-teal-950/60 border-teal-500 text-teal-700 dark:text-teal-300 font-semibold shadow-xs"
+                  email === "dr.chen@aftercare.com"
+                    ? "bg-purple-50 dark:bg-purple-950/60 border-purple-500 text-purple-700 dark:text-purple-300 font-semibold shadow-xs"
                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
                 }`}
               >
@@ -161,10 +167,10 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setDemoUser("nurse.sarah@recoverlink.com", "nurse123")}
+                onClick={() => setDemoUser("nurse.sarah@aftercare.com", "nurse123")}
                 className={`py-1.5 px-2 rounded-xl text-xs font-medium border text-center transition-all ${
-                  email === "nurse.sarah@recoverlink.com"
-                    ? "bg-teal-50 dark:bg-teal-950/60 border-teal-500 text-teal-700 dark:text-teal-300 font-semibold shadow-xs"
+                  email === "nurse.sarah@aftercare.com"
+                    ? "bg-purple-50 dark:bg-purple-950/60 border-purple-500 text-purple-700 dark:text-purple-300 font-semibold shadow-xs"
                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
                 }`}
               >
@@ -172,10 +178,10 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setDemoUser("admin@recoverlink.com", "admin123")}
+                onClick={() => setDemoUser("admin@aftercare.com", "admin123")}
                 className={`py-1.5 px-2 rounded-xl text-xs font-medium border text-center transition-all ${
-                  email === "admin@recoverlink.com"
-                    ? "bg-teal-50 dark:bg-teal-950/60 border-teal-500 text-teal-700 dark:text-teal-300 font-semibold shadow-xs"
+                  email === "admin@aftercare.com"
+                    ? "bg-purple-50 dark:bg-purple-950/60 border-purple-500 text-purple-700 dark:text-purple-300 font-semibold shadow-xs"
                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
                 }`}
               >
@@ -203,7 +209,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                   placeholder="doctor@hospital.org"
                 />
               </div>
@@ -220,7 +226,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                   placeholder="••••••••"
                 />
               </div>

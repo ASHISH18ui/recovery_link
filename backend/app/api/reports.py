@@ -164,7 +164,7 @@ def export_recovery_csv(
         ])
 
     csv_data = output.getvalue()
-    filename = f"recoverlink_recovery_report_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+    filename = f"aftercare_recovery_report_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
 
     return Response(
         content=csv_data,

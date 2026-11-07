@@ -41,11 +41,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        "bg-brand-gradient text-white shadow-sm hover:opacity-95 hover:shadow-md focus:ring-teal-500",
+        "bg-brand-gradient text-white shadow-sm hover:opacity-95 hover:shadow-md focus:ring-purple-500",
       secondary:
         "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 shadow-subtle focus:ring-slate-400",
       outline:
-        "border border-slate-300 dark:border-slate-600 bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/60 focus:ring-teal-500",
+        "border border-slate-300 dark:border-slate-600 bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/60 focus:ring-purple-500",
       ghost:
         "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus:ring-slate-300",
       danger:

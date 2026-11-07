@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="RecoverLink: Post-Discharge Patient Recovery Monitoring Platform for Hospitals. "
+    description="AfterCare: Post-Discharge Patient Recovery Monitoring Platform for Hospitals. "
                 "Core principle: THE AI SUMMARISES AND FLAGS; THE CLINICIAN DECIDES. "
                 "The AI must never diagnose, prescribe, or give medical advice to patients.",
     lifespan=lifespan
@@ -72,7 +72,7 @@ def health_check():
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to RecoverLink API",
+        "message": "Welcome to AfterCare API",
         "docs": "/docs",
         "health": "/health"
     }

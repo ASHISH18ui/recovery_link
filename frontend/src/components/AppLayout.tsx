@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -140,13 +141,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Logo Brand */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800">
             <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-9 h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-white shadow-md shrink-0">
-                <HeartPulse className="w-5 h-5" />
+              <div className="relative w-9 h-9 shrink-0 flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="AfterCare Logo"
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 object-contain rounded-lg shadow-xs"
+                  priority
+                />
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col">
                   <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white leading-none">
-                    Recover<span className="text-teal-600 dark:text-teal-400">Link</span>
+                    After<span className="text-[#8B5CF6] dark:text-[#A78BFA]">Care</span>
                   </span>
                   <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 mt-1">
                     Clinical SaaS
@@ -193,7 +201,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       className={clsx(
                         "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                         isActive
-                          ? "bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 font-semibold"
+                          ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-semibold"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/60"
                       )}
                     >
@@ -201,7 +209,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         className={clsx(
                           "w-5 h-5 shrink-0 transition-transform group-hover:scale-105",
                           isActive
-                            ? "text-teal-600 dark:text-teal-400"
+                            ? "text-purple-600 dark:text-purple-400"
                             : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
                         )}
                       />
@@ -214,7 +222,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         </span>
                       )}
                       {isActive && (
-                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-teal-500" />
+                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-md bg-gradient-to-b from-[#1E7BFF] to-[#8B5CF6]" />
                       )}
                     </Link>
                   );
@@ -232,7 +240,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1E7BFF] via-[#8B5CF6] to-[#EC4899] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                   {user ? user.full_name.charAt(0) : "U"}
                 </div>
                 {!isCollapsed && (

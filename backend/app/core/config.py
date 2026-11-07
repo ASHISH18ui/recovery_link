@@ -19,7 +19,7 @@ def normalize_database_url(url: str) -> str:
     return url
 
 class Settings:
-    PROJECT_NAME: str = "RecoverLink"
+    PROJECT_NAME: str = "AfterCare"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
 

@@ -42,13 +42,13 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* Gradient accents */
+/* Gradient accents: Blue #1E7BFF to Purple #8B5CF6 with subtle Pink highlight #EC4899 */
 .bg-brand-gradient {
-  background: linear-gradient(135deg, #0EA5A4 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #1E7BFF 0%, #8B5CF6 65%, #EC4899 100%);
 }
 
 .text-brand-gradient {
-  background: linear-gradient(135deg, #0EA5A4 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #1E7BFF 0%, #8B5CF6 65%, #EC4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
