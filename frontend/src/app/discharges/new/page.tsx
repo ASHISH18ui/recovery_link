@@ -711,6 +711,51 @@ export default function NewDischargePage() {
               </div>
             </div>
 
+            {/* Patient Portal Self-Service Credentials Card */}
+            {createdResult.patient_credentials && (
+              <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wide">
+                    Patient Portal Self-Service Account
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 font-semibold">
+                    New Account Created
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Username (Phone):</span>
+                    <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+                      {createdResult.patient_credentials.username}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Temporary Password:</span>
+                    <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
+                      {createdResult.patient_credentials.temp_password}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-purple-200 dark:border-purple-800">
+                  <span className="text-[11px] text-purple-700 dark:text-purple-300 truncate max-w-[220px]">
+                    {createdResult.patient_credentials.portal_url}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const text = `Portal: ${createdResult.patient_credentials.portal_url}\nUsername: ${createdResult.patient_credentials.username}\nTemp Password: ${createdResult.patient_credentials.temp_password}`;
+                      navigator.clipboard.writeText(text);
+                      toast.success("Patient portal credentials copied!");
+                    }}
+                    iconLeft={<Copy className="w-3.5 h-3.5" />}
+                  >
+                    Copy Access
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
               <div className="min-w-0">
                 <span className="text-slate-400 block font-medium">Access Token:</span>

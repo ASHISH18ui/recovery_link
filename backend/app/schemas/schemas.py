@@ -193,6 +193,7 @@ class DischargeOut(BaseModel):
     patient_link: str
     simulated_message: str
     created_at: datetime
+    patient_credentials: Optional[Any] = None
 
 # Patient Out
 class PatientOut(BaseModel):

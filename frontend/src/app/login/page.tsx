@@ -244,8 +244,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400">
-            Protected under HIPAA & Clinical Governance Protocol. Session expires on logout.
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center space-y-2 text-xs text-slate-400">
+            <p>
+              Are you a patient recovering at home?{" "}
+              <a href="/patient/login" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline">
+                Patient login &rarr;
+              </a>
+            </p>
+            <p>Protected under HIPAA & Clinical Governance Protocol. Session expires on logout.</p>
           </div>
         </div>
       </div>

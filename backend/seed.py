@@ -2,7 +2,9 @@ import sys
 import os
 import json
 import secrets
-from datetime import datetime, timezone, timedelta
+import random
+import string
+from datetime import datetime, timezone, timedelta, date
 
 # Ensure python path includes backend
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -11,7 +13,7 @@ from app.db import SessionLocal, engine, Base
 from app.models.models import (
     Hospital, User, Patient, Admission, DischargeRecord, CarePlan,
     Medication, Checkin, Vital, Alert, Appointment, Notification, AuditLog,
-    PatientNote, CarePlanTemplate
+    PatientNote, CarePlanTemplate, PatientAccount, MedicationLog, PatientMessage
 )
 from app.core.security import get_password_hash
 from app.core.config import settings
@@ -1185,6 +1187,94 @@ def seed_database(drop_existing: bool = True):
         raise
     finally:
         db.close()
+
+    # Also seed patient portal accounts after main seed
+    db2 = SessionLocal()
+    try:
+        seed_patient_portal_accounts(db2)
+    except Exception as e:
+        print(f"Patient portal seed error: {e}")
+    finally:
+        db2.close()
+
+
+def seed_patient_portal_accounts(db):
+    """
+    Idempotent: creates PatientAccount records for the first 5 seeded patients.
+    Password for all demo accounts: patient123
+    Safe to call multiple times — skips existing accounts.
+    """
+    # Grab first 5 patients (ordered by creation)
+    patients = db.query(Patient).order_by(Patient.created_at).limit(5).all()
+    if not patients:
+        print("No patients found — skipping patient portal seed.")
+        return
+
+    created_count = 0
+    demo_creds = []
+    for pat in patients:
+        existing = db.query(PatientAccount).filter(PatientAccount.patient_id == pat.id).first()
+        if existing:
+            demo_creds.append({"name": pat.full_name, "phone": pat.phone, "password": "patient123 (may differ)"})
+            continue
+        account = PatientAccount(
+            patient_id=pat.id,
+            phone=pat.phone,
+            email=pat.email,
+            hashed_password=get_password_hash("patient123"),
+            must_change_password=False,  # demo — skip forced change
+            is_active=True,
+            preferred_language="en",
+        )
+        db.add(account)
+
+        # Seed 3 messages for this patient
+        care_plan = db.query(CarePlan).filter(CarePlan.patient_id == pat.id).first()
+        db.add(PatientMessage(
+            patient_id=pat.id,
+            sender_role="system",
+            sender_name="AfterCare Team",
+            content=f"Welcome to AfterCare, {pat.full_name.split()[0]}! Your post-discharge care portal is now active. You can check in daily, view your medications, and message your care team here.",
+        ))
+        db.add(PatientMessage(
+            patient_id=pat.id,
+            sender_role="nurse",
+            sender_name="Sarah Jenkins, RN",
+            content="Hi! Just checking in. Please remember to take your medications and complete your daily health check-in. Let us know if you have any concerns.",
+        ))
+
+        # Seed medication logs for last 7 days
+        if care_plan:
+            meds = db.query(Medication).filter(
+                Medication.care_plan_id == care_plan.id, Medication.is_active == True
+            ).all()
+            for d_offset in range(7, 0, -1):
+                log_dt = date.today() - timedelta(days=d_offset)
+                for med in meds:
+                    # 85% taken rate
+                    status = "taken" if random.random() < 0.85 else "skipped"
+                    existing_log = db.query(MedicationLog).filter(
+                        MedicationLog.medication_id == med.id,
+                        MedicationLog.patient_id == pat.id,
+                        MedicationLog.log_date == log_dt,
+                    ).first()
+                    if not existing_log:
+                        db.add(MedicationLog(
+                            medication_id=med.id,
+                            patient_id=pat.id,
+                            log_date=log_dt,
+                            status=status,
+                        ))
+
+        created_count += 1
+        demo_creds.append({"name": pat.full_name, "phone": pat.phone, "password": "patient123"})
+
+    db.commit()
+    print(f"Patient portal seed: {created_count} new accounts created.")
+    print("Demo patient credentials:")
+    for c in demo_creds:
+        print(f"  {c['name']:35s}  phone: {c['phone']:15s}  pw: {c['password']}")
+
 
 if __name__ == "__main__":
     seed_database()

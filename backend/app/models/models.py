@@ -1,7 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+import json
+from datetime import datetime, timezone, date
 from sqlalchemy import (
-    Column, String, Text, Boolean, Integer, Float, DateTime, ForeignKey
+    Column, String, Text, Boolean, Integer, Float, DateTime, ForeignKey, Date
 )
 from sqlalchemy.orm import relationship
 from app.db import Base
@@ -281,4 +282,128 @@ class CarePlanTemplate(Base):
     default_instructions = Column(Text, nullable=True)
     suggested_medications = Column(Text, default="[]") # JSON list of {name, dosage, frequency, purpose}
     created_at = Column(DateTime, default=utc_now)
+
+
+# ============================================================
+# PATIENT PORTAL MODELS  (all use create_all — safe, additive)
+# ============================================================
+
+class PatientAccount(Base):
+    """Login credentials for a patient, linked to the clinical Patient record."""
+    __tablename__ = "patient_accounts"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    patient_id = Column(String(36), ForeignKey("patients.id"), unique=True, nullable=False)
+    phone = Column(String(50), nullable=True, index=True)
+    email = Column(String(255), nullable=True, index=True)
+    hashed_password = Column(String(255), nullable=False)
+    must_change_password = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
+    preferred_language = Column(String(10), default="en")  # "en" or "hi"
+    created_at = Column(DateTime, default=utc_now)
+    last_login_at = Column(DateTime, nullable=True)
+
+    patient = relationship("Patient", foreign_keys=[patient_id])
+    otps = relationship("PatientOTP", back_populates="patient_account", cascade="all, delete-orphan")
+
+
+class PatientOTP(Base):
+    """Simulated OTP for patient password reset (shown in notifications log)."""
+    __tablename__ = "patient_otps"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    patient_account_id = Column(String(36), ForeignKey("patient_accounts.id"), nullable=False)
+    otp_code = Column(String(6), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    is_used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=utc_now)
+
+    patient_account = relationship("PatientAccount", back_populates="otps")
+
+
+class MedicationLog(Base):
+    """Patient marks a medication as taken or skipped."""
+    __tablename__ = "medication_logs"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    medication_id = Column(String(36), ForeignKey("medications.id"), nullable=False)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False)
+    log_date = Column(Date, nullable=False)
+    status = Column(String(20), nullable=False)  # "taken" | "skipped"
+    logged_at = Column(DateTime, default=utc_now)
+    notes = Column(Text, nullable=True)
+
+    medication = relationship("Medication")
+    patient = relationship("Patient")
+
+
+class PatientMessage(Base):
+    """Patient ↔ care team messaging."""
+    __tablename__ = "patient_messages"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False)
+    sender_role = Column(String(20), nullable=False)  # "patient" | "nurse" | "doctor" | "system"
+    sender_id = Column(String(36), nullable=True)      # null if sender is patient
+    sender_name = Column(String(255), nullable=True)
+    content = Column(Text, nullable=False)
+    message_status = Column(String(20), default="sent")  # "sent" | "seen" | "replied"
+    created_at = Column(DateTime, default=utc_now)
+
+    patient = relationship("Patient")
+
+
+class PatientVitalReading(Base):
+    """Optional readings submitted by the patient during check-in."""
+    __tablename__ = "patient_vital_readings"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False)
+    checkin_id = Column(String(36), ForeignKey("checkins.id"), nullable=True)
+    reading_date = Column(Date, nullable=False)
+    temperature = Column(Float, nullable=True)
+    systolic_bp = Column(Integer, nullable=True)
+    diastolic_bp = Column(Integer, nullable=True)
+    pulse = Column(Integer, nullable=True)
+    spo2 = Column(Float, nullable=True)
+    weight_kg = Column(Float, nullable=True)
+    blood_sugar = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=utc_now)
+
+    patient = relationship("Patient")
+
+
+class RecoveryPlanDay(Base):
+    """Per-day instructions on the recovery plan (shown in patient portal)."""
+    __tablename__ = "recovery_plan_days"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    care_plan_id = Column(String(36), ForeignKey("care_plans.id"), nullable=False)
+    day_number = Column(Integer, nullable=False)
+    title = Column(String(255), nullable=False)
+    instructions = Column(Text, nullable=True)
+    diet_notes = Column(Text, nullable=True)
+    exercise_notes = Column(Text, nullable=True)
+    warning_signs = Column(Text, nullable=True)   # JSON string list
+    milestones = Column(Text, nullable=True)       # JSON string list
+    is_completed = Column(Boolean, default=False)
+
+    care_plan = relationship("CarePlan")
+
+
+class RescheduleRequest(Base):
+    """Patient requests to reschedule an appointment."""
+    __tablename__ = "reschedule_requests"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    appointment_id = Column(String(36), ForeignKey("appointments.id"), nullable=False)
+    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False)
+    reason = Column(Text, nullable=False)
+    preferred_dates = Column(Text, nullable=True)   # JSON
+    request_status = Column(String(20), default="pending")  # "pending" | "acknowledged"
+    created_at = Column(DateTime, default=utc_now)
+
+    appointment = relationship("Appointment")
+    patient = relationship("Patient")
+
 

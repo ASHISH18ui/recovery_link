@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db import Base, engine
 from app.api import auth, discharges, patients, checkins, dashboard, alerts, notifications, audit, appointments, reports, settings as settings_api
+from app.api import patient_portal
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,6 +21,12 @@ async def lifespan(app: FastAPI):
             print("Auto-seeding completed.")
         else:
             print("Database contains existing records. Skipping auto-seed.")
+            # Still run patient portal seed (idempotent) to ensure demo accounts exist
+            try:
+                from seed import seed_patient_portal_accounts
+                seed_patient_portal_accounts(db)
+            except Exception as pe:
+                print(f"Patient portal seed skipped: {pe}")
     except Exception as e:
         print(f"Startup auto-seed check encountered an issue: {e}")
     finally:
@@ -58,6 +65,9 @@ app.include_router(audit.router, prefix=settings.API_V1_STR)
 app.include_router(appointments.router, prefix=settings.API_V1_STR)
 app.include_router(reports.router, prefix=settings.API_V1_STR)
 app.include_router(settings_api.router, prefix=settings.API_V1_STR)
+
+# Patient Portal (separate prefix, no /api/v1)
+app.include_router(patient_portal.router)
 
 @app.get("/health")
 def health_check():

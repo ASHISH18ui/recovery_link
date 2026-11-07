@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from app.db import get_db
 from app.core.config import settings
 from app.core.security import decode_token
-from app.models.models import User, Patient, AuditLog
+from app.models.models import User, Patient, AuditLog, PatientAccount
 
 security = HTTPBearer(auto_error=False)
 
@@ -55,6 +55,12 @@ def get_current_user(
             detail="Could not validate credentials or token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Reject patient tokens on staff endpoints
+    if payload.get("role") == "patient":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Staff access required. Patient tokens are not allowed on this endpoint.",
+        )
     user_id: str = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
@@ -96,3 +102,40 @@ def get_patient_by_token(
                 detail="Recovery link has expired. Please contact your hospital care team."
             )
     return patient
+
+
+def get_current_patient(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db),
+) -> PatientAccount:
+    """Dependency for patient-portal endpoints. Only accepts role=patient JWTs."""
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Patient authentication credentials not provided",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = credentials.credentials
+    payload = decode_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate patient credentials or token expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if payload.get("role") != "patient":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Patient access required. Staff tokens are not allowed on this endpoint.",
+        )
+    patient_account_id: str = payload.get("sub")
+    if not patient_account_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+
+    patient_account = db.query(PatientAccount).filter(PatientAccount.id == patient_account_id).first()
+    if not patient_account:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient account not found")
+    if not patient_account.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Patient account is inactive")
+    return patient_account
+

@@ -1,4 +1,5 @@
 import secrets
+import string
 from datetime import datetime, timezone, timedelta
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -6,11 +7,13 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.models import (
-    User, Patient, Admission, DischargeRecord, CarePlan, Medication, Appointment
+    User, Patient, Admission, DischargeRecord, CarePlan, Medication, Appointment,
+    PatientAccount
 )
 from app.schemas.schemas import DischargeCreate, DischargeOut
 from app.core.deps import get_current_user, require_roles, log_audit_event
 from app.core.config import settings
+from app.core.security import get_password_hash
 from app.services.notification_service import notification_service
 
 router = APIRouter(prefix="/discharges", tags=["discharges"])
@@ -128,7 +131,59 @@ def create_discharge(
 
     db.commit()
 
-    # Send simulated onboarding notification
+    # ── Auto-create PatientAccount for patient portal ──────────────────────
+    portal_base = (settings.PATIENT_PORTAL_URL or "http://localhost:3000").rstrip("/").replace("/check-in", "")
+    portal_login_url = f"{portal_base}/patient/login"
+    patient_credentials = None
+
+    existing_account = db.query(PatientAccount).filter(
+        PatientAccount.patient_id == patient.id
+    ).first()
+
+    if not existing_account:
+        chars = string.ascii_letters + string.digits
+        temp_password = "".join(secrets.choice(chars) for _ in range(8))
+        new_account = PatientAccount(
+            patient_id=patient.id,
+            phone=patient.phone,
+            email=patient.email,
+            hashed_password=get_password_hash(temp_password),
+            must_change_password=True,
+            is_active=True,
+        )
+        db.add(new_account)
+        db.commit()
+
+        patient_credentials = {
+            "username": patient.phone,
+            "temp_password": temp_password,
+            "portal_url": portal_login_url,
+        }
+
+        # Simulated WhatsApp/SMS with credentials
+        notification_service.send_notification(
+            db=db,
+            notification_type="onboarding_link",
+            channel="whatsapp",
+            recipient_contact=patient.phone,
+            message=(
+                f"Welcome to AfterCare! Your patient portal account is ready.\n"
+                f"Login at: {portal_login_url}\n"
+                f"Username: {patient.phone}\n"
+                f"Temporary password: {temp_password}\n"
+                f"You will be asked to set a new password on first login."
+            ),
+            patient_id=patient.id,
+            care_plan_id=care_plan.id,
+        )
+    else:
+        patient_credentials = {
+            "username": patient.phone,
+            "temp_password": "(account already exists)",
+            "portal_url": portal_login_url,
+        }
+
+    # Send simulated onboarding notification (tokenised check-in link)
     patient_link = f"{settings.PATIENT_PORTAL_URL}/{patient.access_token}"
     notification = notification_service.send_patient_onboarding(
         db=db,
@@ -170,6 +225,7 @@ def create_discharge(
         patient_token=patient.access_token,
         patient_link=patient_link,
         simulated_message=notification.message,
-        created_at=discharge_record.created_at
+        created_at=discharge_record.created_at,
+        patient_credentials=patient_credentials,
     )
 
