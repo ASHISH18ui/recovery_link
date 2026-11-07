@@ -59,7 +59,7 @@ export default function PatientLoginPage() {
         setCurrentPwForChange(password);
         setMustChangeModalOpen(true);
       } else {
-        router.push("/patient/dashboard");
+        router.push("/patient/home");
       }
     } catch (err: any) {
       setError(err.message || "Invalid login credentials. Please check your phone or password.");
@@ -74,7 +74,7 @@ export default function PatientLoginPage() {
     try {
       await patientApi.changePassword(currentPwForChange, forcedNewPw);
       setMustChangeModalOpen(false);
-      router.push("/patient/dashboard");
+      router.push("/patient/home");
     } catch (err: any) {
       setError(err.message || "Failed to update password");
     } finally {
@@ -185,15 +185,33 @@ export default function PatientLoginPage() {
           </div>
 
           {/* Demo Patient Chips */}
-          <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 space-y-2">
+          <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 space-y-2.5">
             <div className="flex items-center justify-between text-xs font-semibold text-purple-900 dark:text-purple-200">
-              <span>Quick Demo Patient Logins:</span>
+              <span className="font-bold">Instant Demo Login:</span>
               <span className="text-[11px] font-normal text-purple-600 dark:text-purple-400">
                 Password: <code className="font-mono font-bold">patient123</code>
               </span>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {DEMO_PATIENTS.map((p) => (
+
+            {/* Primary requested Demo Patient chip */}
+            <button
+              type="button"
+              onClick={() => {
+                setUsername("+1 (555) 234-5678");
+                setPassword("patient123");
+                setError(null);
+              }}
+              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 border-2 border-purple-400 dark:border-purple-700 hover:bg-purple-100/50 shadow-xs transition-all text-left"
+            >
+              <span>Demo Patient (Robert Vance)</span>
+              <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                +1 (555) 234-5678 / patient123
+              </span>
+            </button>
+
+            {/* Other demo patients */}
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {DEMO_PATIENTS.slice(1).map((p) => (
                 <button
                   key={p.phone}
                   type="button"
@@ -202,7 +220,7 @@ export default function PatientLoginPage() {
                     setPassword("patient123");
                     setError(null);
                   }}
-                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-purple-200 dark:border-purple-800 hover:border-purple-500 hover:bg-purple-100/50 transition-colors shadow-2xs"
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-200 border border-purple-200 dark:border-purple-800 hover:border-purple-500 hover:bg-purple-100/50 transition-colors shadow-2xs"
                 >
                   {p.name.split(" ")[0]} ({p.procedure.split(" ")[0]})
                 </button>

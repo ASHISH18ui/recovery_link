@@ -20,7 +20,8 @@ import {
   Menu,
   X,
   PhoneCall,
-  ShieldAlert
+  ShieldAlert,
+  MoreHorizontal
 } from "lucide-react";
 import { PatientProvider, usePatient } from "./PatientContext";
 import { patientAuthStorage, patientApi } from "@/lib/patient-api";
@@ -63,8 +64,8 @@ function PatientShell({ children }: { children: React.ReactNode }) {
   }
 
   const navItems = [
-    { href: "/patient/dashboard", label: t("home", lang), icon: Home },
-    { href: "/patient/checkin", label: t("checkin", lang), icon: CheckCircle2, badge: "Daily" },
+    { href: "/patient/home", label: t("home", lang), icon: Home, aliases: ["/patient/dashboard"] },
+    { href: "/patient/check-in", label: t("checkin", lang), icon: CheckCircle2, badge: "Daily", aliases: ["/patient/checkin"] },
     { href: "/patient/recovery-plan", label: t("recoveryPlan", lang), icon: Calendar },
     { href: "/patient/medications", label: t("medicines", lang), icon: Pill },
     { href: "/patient/appointments", label: t("appointments", lang), icon: Calendar },
@@ -76,8 +77,8 @@ function PatientShell({ children }: { children: React.ReactNode }) {
   ];
 
   const mobileBottomItems = [
-    { href: "/patient/dashboard", label: t("home", lang), icon: Home },
-    { href: "/patient/checkin", label: t("checkin", lang), icon: CheckCircle2 },
+    { href: "/patient/home", label: t("home", lang), icon: Home, aliases: ["/patient/dashboard"] },
+    { href: "/patient/check-in", label: t("checkin", lang), icon: CheckCircle2, aliases: ["/patient/checkin"] },
     { href: "/patient/medications", label: t("medicines", lang), icon: Pill },
     { href: "/patient/progress", label: t("progress", lang), icon: TrendingUp },
     { href: "/patient/messages", label: t("messages", lang), icon: MessageSquare },
@@ -98,7 +99,7 @@ function PatientShell({ children }: { children: React.ReactNode }) {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
-            <Link href="/patient/dashboard" className="flex items-center gap-2.5">
+            <Link href="/patient/home" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-brand-gradient p-1 flex items-center justify-center shadow-md">
                 <Image
                   src="/logo.png"
@@ -181,7 +182,7 @@ function PatientShell({ children }: { children: React.ReactNode }) {
           {/* Nav List */}
           <nav className="space-y-1">
             {navItems.map((item) => {
-              const active = pathname === item.href;
+              const active = pathname === item.href || (item.aliases && item.aliases.includes(pathname));
               const Icon = item.icon;
               return (
                 <Link
@@ -264,7 +265,7 @@ function PatientShell({ children }: { children: React.ReactNode }) {
 
                 <nav className="space-y-1">
                   {navItems.map((item) => {
-                    const active = pathname === item.href;
+                    const active = pathname === item.href || (item.aliases && item.aliases.includes(pathname));
                     const Icon = item.icon;
                     return (
                       <Link
@@ -305,26 +306,84 @@ function PatientShell({ children }: { children: React.ReactNode }) {
       {/* Mobile Bottom Tab Bar */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 shadow-lg">
         <div className="grid grid-cols-5 gap-1">
-          {mobileBottomItems.map((item) => {
-            const active = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
-                  active
-                    ? "text-purple-600 dark:text-purple-400 font-bold"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${active ? "scale-110" : ""}`} />
-                <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+          <Link
+            href="/patient/home"
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
+              pathname === "/patient/home" || pathname === "/patient/dashboard"
+                ? "text-purple-600 dark:text-purple-400 font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
+              {t("home", lang)}
+            </span>
+          </Link>
+
+          <Link
+            href="/patient/check-in"
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
+              pathname === "/patient/check-in" || pathname === "/patient/checkin"
+                ? "text-purple-600 dark:text-purple-400 font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+            }`}
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
+              {t("checkin", lang)}
+            </span>
+          </Link>
+
+          <Link
+            href="/patient/medications"
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
+              pathname === "/patient/medications"
+                ? "text-purple-600 dark:text-purple-400 font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+            }`}
+          >
+            <Pill className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
+              {t("medicines", lang)}
+            </span>
+          </Link>
+
+          <Link
+            href="/patient/progress"
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
+              pathname === "/patient/progress"
+                ? "text-purple-600 dark:text-purple-400 font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+            }`}
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
+              {t("progress", lang)}
+            </span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
+              [
+                "/patient/recovery-plan",
+                "/patient/appointments",
+                "/patient/messages",
+                "/patient/documents",
+                "/patient/notifications",
+                "/patient/profile",
+                "/patient/emergency",
+              ].includes(pathname)
+                ? "text-purple-600 dark:text-purple-400 font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+            }`}
+          >
+            <MoreHorizontal className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">
+              More
+            </span>
+          </button>
         </div>
       </nav>
 

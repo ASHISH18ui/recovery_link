@@ -7,7 +7,7 @@ export default function PatientRootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/patient/dashboard");
+    router.replace("/patient/home");
   }, [router]);
 
   return (

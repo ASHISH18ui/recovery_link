@@ -1,18 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { User, Phone, Mail, Shield, KeyRound, Languages, Heart, Check, Save } from "lucide-react";
+import { User, Phone, Mail, Shield, KeyRound, Languages, Heart, Check, Save, HeartHandshake } from "lucide-react";
 import { patientApi, PatientMe } from "@/lib/patient-api";
 import { usePatient } from "../PatientContext";
-import { t, Lang } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 
 export default function PatientProfilePage() {
   const { lang, setLang } = usePatient();
   const [profile, setProfile] = useState<PatientMe | null>(null);
-  const [emergencyContact, setEmergencyContact] = useState("");
-  const [savingContact, setSavingContact] = useState(false);
-  const [contactSuccess, setContactSuccess] = useState(false);
+
+  // Caregiver fields
+  const [caregiverName, setCaregiverName] = useState("");
+  const [caregiverRelation, setCaregiverRelation] = useState("Spouse");
+  const [caregiverPhone, setCaregiverPhone] = useState("");
+  const [savingCaregiver, setSavingCaregiver] = useState(false);
+  const [caregiverSuccess, setCaregiverSuccess] = useState(false);
 
   // Change password form
   const [currentPw, setCurrentPw] = useState("");
@@ -27,23 +31,28 @@ export default function PatientProfilePage() {
       .getMe()
       .then((res) => {
         setProfile(res);
-        setEmergencyContact(res.patient.emergency_contact || "");
+        if (res.patient.emergency_contact) {
+          // Parse "Name (Relation) - Phone" or raw string
+          const contactStr = res.patient.emergency_contact;
+          setCaregiverName(contactStr);
+        }
       })
       .catch(() => {});
   }, []);
 
-  const handleSaveEmergencyContact = async (e: React.FormEvent) => {
+  const handleSaveCaregiver = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavingContact(true);
-    setContactSuccess(false);
+    setSavingCaregiver(true);
+    setCaregiverSuccess(false);
+    const combinedString = `${caregiverName.trim()} (${caregiverRelation}) - ${caregiverPhone.trim()}`;
     try {
-      await patientApi.updateProfile({ emergency_contact: emergencyContact });
-      setContactSuccess(true);
-      setTimeout(() => setContactSuccess(false), 3000);
+      await patientApi.updateProfile({ emergency_contact: combinedString });
+      setCaregiverSuccess(true);
+      setTimeout(() => setCaregiverSuccess(false), 3500);
     } catch (err: any) {
-      alert(err.message || "Failed to update emergency contact");
+      alert(err.message || "Failed to update caregiver contact");
     } finally {
-      setSavingContact(false);
+      setSavingCaregiver(false);
     }
   };
 
@@ -77,14 +86,14 @@ export default function PatientProfilePage() {
           {t("profile", lang)}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Manage your contact information, emergency caregiver, and portal settings.
+          Manage your personal details, caregiver contact, language preferences, and security.
         </p>
       </div>
 
       {/* Demographics Card */}
       <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-          Personal Information (Hospital Record)
+          Personal Details (Hospital Record)
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -103,7 +112,7 @@ export default function PatientProfilePage() {
           </div>
 
           <div>
-            <span className="text-slate-400 block mb-0.5">Primary Contact Phone</span>
+            <span className="text-slate-400 block mb-0.5">Registered Phone</span>
             <span className="font-bold text-slate-800 dark:text-slate-200">
               {profile?.patient.phone || "—"}
             </span>
@@ -153,48 +162,83 @@ export default function PatientProfilePage() {
         </div>
       </div>
 
-      {/* Emergency Caregiver Form */}
+      {/* Designated Caregiver Form */}
       <form
-        onSubmit={handleSaveEmergencyContact}
+        onSubmit={handleSaveCaregiver}
         className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-500" />
+            <HeartHandshake className="w-4 h-4 text-pink-500" />
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Emergency Contact & Caregiver
+              Designated Recovery Caregiver
             </h2>
           </div>
-          {contactSuccess && (
+          {caregiverSuccess && (
             <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-              <Check className="w-3.5 h-3.5" /> Saved!
+              <Check className="w-3.5 h-3.5" /> Caregiver details saved!
             </span>
           )}
         </div>
 
-        <p className="text-xs text-slate-500">
-          This person will be reached by the hospital if critical alerts or emergency notifications are triggered.
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Your caregiver will receive automated SMS notifications if your daily check-in detects warning signs or requires clinician review.
         </p>
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Caregiver Name, Relationship & Phone Number
-          </label>
-          <input
-            type="text"
-            required
-            value={emergencyContact}
-            onChange={(e) => setEmergencyContact(e.target.value)}
-            placeholder="e.g. John Vance (Spouse) - +1 (555) 987-6543"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
-          />
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Caregiver Full Name
+            </label>
+            <input
+              type="text"
+              required
+              value={caregiverName}
+              onChange={(e) => setCaregiverName(e.target.value)}
+              placeholder="e.g. Eleanor Vance"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Relationship
+              </label>
+              <select
+                value={caregiverRelation}
+                onChange={(e) => setCaregiverRelation(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium"
+              >
+                <option value="Spouse">Spouse / Partner</option>
+                <option value="Adult Child">Son / Daughter</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Brother / Sister</option>
+                <option value="Relative">Relative</option>
+                <option value="Friend">Friend / Neighbor</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Caregiver Mobile Phone
+              </label>
+              <input
+                type="tel"
+                value={caregiverPhone}
+                onChange={(e) => setCaregiverPhone(e.target.value)}
+                placeholder="+1 (555) 987-6543"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium"
+              />
+            </div>
+          </div>
         </div>
 
         <Button
           type="submit"
           variant="secondary"
           size="md"
-          isLoading={savingContact}
+          isLoading={savingCaregiver}
           iconLeft={<Save className="w-3.5 h-3.5" />}
         >
           {t("saveChanges", lang)}
@@ -234,7 +278,7 @@ export default function PatientProfilePage() {
               required
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
             />
           </div>
 
@@ -249,7 +293,7 @@ export default function PatientProfilePage() {
                 minLength={6}
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
               />
             </div>
             <div>
@@ -262,7 +306,7 @@ export default function PatientProfilePage() {
                 minLength={6}
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
               />
             </div>
           </div>
@@ -274,12 +318,12 @@ export default function PatientProfilePage() {
       </form>
 
       {/* Consent & Privacy Notice */}
-      <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 space-y-1">
+      <div className="p-5 rounded-2xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 space-y-1.5 leading-relaxed">
         <span className="font-bold block text-slate-700 dark:text-slate-300">
-          Consent & Clinical Privacy Protocol
+          Consent &amp; Clinical Governance Protocol
         </span>
         <p>
-          Your daily check-ins are processed in compliance with hospital security standards. Information submitted is monitored by automated rules and hospital clinical staff to guide your recovery.
+          By participating in the AfterCare post-discharge surveillance program, you consent to automated clinical symptom evaluation and caregiver notification in the event of flagged complications. All communication complies with hospital data security policies.
         </p>
       </div>
     </div>
